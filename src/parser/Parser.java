@@ -190,9 +190,9 @@ public class Parser {
 				}
 				getToken();
 				break;
-				default:
-					handleErr(SYNTAX);
-					break;
+			default:
+				handleErr(SYNTAX);
+				break;
 		}
 		return result;
 	}

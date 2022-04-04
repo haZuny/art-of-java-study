@@ -17,26 +17,16 @@ public class Algorithm1 {
 	
 	
 	// 생성자, 계산과 출력까지 수행
-	public Algorithm1(String str) {
+	 int operate(String str) {
 		this.str = str;
 		list = new ArrayList<String>();
-		
-		int idx1 = 0;
-		int idx2 = 0;
 		
 		int a, b;	// 피연산자
 		int result;
 		String operator;	// 연산자
 		
 		// 표현 수식의 구성원들을 분리
-		while(idx2 < str.length()) {
-			if(str.charAt(idx2) == ' ') {	// 공백으로 연산자 구분
-				list.add(str.substring(idx1, idx2));
-				idx1 = idx2 + 1;
-			}
-			idx2++;
-		}
-		list.add(str.substring(idx1, idx2));
+		getToken(str);
 		
 		// 피연산자가 존재하지 않을 때 까지 반복
 		while (list.size() > 1) {
@@ -88,18 +78,53 @@ public class Algorithm1 {
 			list.add(0, "" + a);					
 		}
 		
-		// 피연산자가 하나만 있으면 출력
-		System.out.println("결과값: " + list.get(0));		
+		// 피연산자가 하나만 있으면 리턴
+		return(Integer.parseInt(list.get(0)));	
+
+	}
+	
+	
+	// 토큰 저장
+	public void getToken(String exp) {
+		
+		// 연산자 피연산자 상태 구분
+		String buf = "";
+		int idx = 0;
+		
+		while(idx < exp.length()) {
+			// 피연산자인 경우
+			if (("1234567890".indexOf(exp.charAt(idx))) != -1){
+				buf += exp.charAt(idx);
+			}
+			// 연산자인 경우
+			else if (("+-/*%^=()".indexOf(exp.charAt(idx))) != -1){
+				list.add(buf);
+				buf = "";
+				list.add("" + exp.charAt(idx));
+			}
+			// 공백 무시
+			else if(exp.charAt(idx) == ' '){
+				
+			}
+			idx++;
+		}
+		list.add(buf);
 	}
 
+	
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
 		String str = "10 - 2 * 3";
+		int result;
 		
 		System.out.println("입력 수식: " + str);
 		
-		Algorithm1 obj = new Algorithm1(str);
+		Algorithm1 obj = new Algorithm1();
+		result = obj.operate(str);
+		
+		System.out.println("결과값: " + result);
 	}
 
 }
