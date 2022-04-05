@@ -2,14 +2,6 @@ package parser;
 
 import java.util.ArrayList;
 
-/*
- 알고리즘1
- a = 첫번째 피연산자
- while (피연산자가 존재_
- 	op = 연산자
- 	b = 두번째 피연산자
- 	a = a op b
- */
 public class Algorithm1 {
 	
 	String str;
