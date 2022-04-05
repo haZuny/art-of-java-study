@@ -40,6 +40,9 @@ public class Parser {
 	private String token;	// 현재 인덱싱 된 토큰
 	private int tokType;	// 현재 인덱싱 된 토큰의 타입
 	
+	// 변수형을 위한 배열
+	private double vars[] = new double[26];
+	
 	
 	
 	// 파서의 시작점, 연산 시작
@@ -53,12 +56,47 @@ public class Parser {
 			handleErr(NOEXP);	// 표현이 존재하지 않음
 		
 		// 표현을 파싱하고 값을 구한다
-		result = evalExp2();
+		result = evalExp1();
 		
 		if(!token.equals(EOE)) 
 			handleErr(SYNTAX);
-			
+		
 		return result;
+	}
+	
+	
+	// 할당을 처리
+	private double evalExp1() throws ParserException{
+		double result;
+		int varIdx;
+		int ttokType;
+		String temptoken;
+		
+		if(tokType == VARIABLE) {
+			// 이전 토큰 저장
+			temptoken = new String(token);
+			ttokType = tokType;
+			
+			// 변수의 인덱스 계산
+			varIdx = Character.toUpperCase(token.charAt(0)) - 'A';
+			
+			getToken();
+			// 변수가 아닌 경우
+			if(!token.equals("=")) {
+				putBack();	// 인덱스 되돌림
+				// 이전 토큰값 저장. 할당X
+				token = new String(temptoken);
+				tokType = ttokType;
+			}
+			// 연산 실행하고 결과값 배열에 저장
+			else {
+				getToken();	// 다음 부분의 문자열을 가져옴
+				result = evalExp2();
+				vars[varIdx] = result;
+				return result;
+			}
+		}
+		return evalExp2();
 	}
 	
 	
@@ -177,7 +215,7 @@ public class Parser {
 	}
 	
 	
-	// 숫자값을 구한다
+	// 숫자나 변수의 값을 가져온다
 	private double atom() throws ParserException{
 		double result = 0.0;
 		
@@ -190,9 +228,15 @@ public class Parser {
 				}
 				getToken();
 				break;
+			case VARIABLE:
+				result = findVar(token);
+				getToken();
+				break;
+				
 			default:
 				handleErr(SYNTAX);
 				break;
+				
 		}
 		return result;
 	}
@@ -274,6 +318,25 @@ public class Parser {
 		if((" +-/*%^=()".indexOf(c) != -1))
 			return true;
 		return false;
+	}
+	
+	
+	// 변수의 값을 리턴한다.
+	private double findVar(String vname) throws ParserException{
+		if(!Character.isLetter(vname.charAt(0))) {
+			handleErr(SYNTAX);
+			return 0.0;
+		}
+		return vars[Character.toUpperCase(vname.charAt(0)) - 'A'];
+	}
+	
+	
+	// 입력 스트림의 값만큼 인덱스 값을 되돌린다.
+	private void putBack() {
+		if (token == EOE)
+			return;
+		for (int i = 0; i < token.length(); i++)
+			expIdx--;
 	}
 	
 	
