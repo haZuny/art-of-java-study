@@ -164,9 +164,9 @@ public class Parser {
 		
 		result = evalExp5();
 		
-		if(token.equals('^')) {
+		if(token.equals("^")) {
 			getToken();
-			partialResult = evalExp4();
+			partialResult = evalExp4();	// 연속된 지수 연산 처리 위해 4로 재반복
 			ex = result;
 			if(partialResult == 0.0) 
 				result = 1.0;
@@ -185,20 +185,56 @@ public class Parser {
 		String op;
 		
 		op = "";
-		if((tokType == DELIMITER) && token.equals('+') || token.equals('-')) {
+		if((tokType == DELIMITER) && token.equals("+") || token.equals("-")) {
 			op = token;
 			getToken();
 		}
 		result = evalExp6();
 		
-		if(op.equals('-'))
+		if(op.equals("-"))
 			result = -result;
 		
 		return result;		
 	}
 	
-	// 괄호를 처리
+	// 대괄호 []
 	private double evalExp6() throws ParserException{
+		double result;
+		
+		if(token.contentEquals("[")) {
+			getToken();
+			result = evalExp2();
+			if(!token.equals("]"))
+				handleErr(UNBALPARENS);
+			getToken();
+		}
+		
+		else
+			result = evalExp7();
+		
+		return result;
+	}
+	
+	// 중괄호 {}
+	private double evalExp7() throws ParserException{
+		double result;
+		
+		if(token.contentEquals("{")) {
+			getToken();
+			result = evalExp2();
+			if(!token.equals("}"))
+				handleErr(UNBALPARENS);
+			getToken();
+		}
+		else
+			result = evalExp8();
+		
+		
+		return result;
+	}
+	
+	// 소괄호()
+	private double evalExp8() throws ParserException{
 		double result;
 		
 		if(token.contentEquals("(")) {
@@ -228,6 +264,7 @@ public class Parser {
 				}
 				getToken();
 				break;
+				
 			case VARIABLE:
 				result = findVar(token);
 				getToken();
@@ -315,7 +352,7 @@ public class Parser {
 	
 	// 연산자인 경우 true 아니면 false
 	private boolean isDelim(char c) {
-		if((" +-/*%^=()".indexOf(c) != -1))
+		if((" +-/*%^=(){}[]".indexOf(c) != -1))
 			return true;
 		return false;
 	}
