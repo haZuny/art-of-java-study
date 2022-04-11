@@ -65,7 +65,7 @@ public class Parser {
 	}
 	
 	
-	// 할당을 처리
+	// 할당, 변수를 처리
 	private double evalExp1() throws ParserException{
 		double result;
 		int varIdx;
@@ -73,7 +73,7 @@ public class Parser {
 		String temptoken;
 		
 		if(tokType == VARIABLE) {
-			// 이전 토큰 저장
+			// 이전 토큰 저장, 변수 연산 경우 위해서
 			temptoken = new String(token);
 			ttokType = tokType;
 			
@@ -91,12 +91,49 @@ public class Parser {
 			// 연산 실행하고 결과값 배열에 저장
 			else {
 				getToken();	// 다음 부분의 문자열을 가져옴
-				result = evalExp2();
+				result = evalExp1_2();
 				vars[varIdx] = result;
 				return result;
 			}
 		}
-		return evalExp2();
+		return evalExp1_2();
+	}
+	
+	// 방정식 연산 처리
+	private double evalExp1_2() throws ParserException{
+		char op;
+		double result;
+		double patialResult;
+		double sizeUnknown;	// 미지수 상수
+		
+		result = evalExp2();	// 이전까지의 연산 계산
+		
+		if (token.charAt(0) == '#') {
+			getToken();
+			
+			// 미지수 상수 처리
+			if(tokType == NUMBER) {
+				sizeUnknown = atom();
+				getToken();
+			}
+			else
+				sizeUnknown = 1;
+			
+			// 연산자 저장
+			if (tokType == DELIMITER) {
+				op = token.charAt(0);
+				getToken();				
+			}
+			else
+				handleErr(SYNTAX);
+			
+			patialResult = evalExp2();
+			
+			// 반복 수행하며 방정식 해를 구함
+			
+		}
+		
+		return result;
 	}
 	
 	
@@ -352,7 +389,7 @@ public class Parser {
 	
 	// 연산자인 경우 true 아니면 false
 	private boolean isDelim(char c) {
-		if((" +-/*%^=(){}[]".indexOf(c) != -1))
+		if((" +-/*%^=(){}[]#".indexOf(c) != -1))
 			return true;
 		return false;
 	}
