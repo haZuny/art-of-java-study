@@ -156,7 +156,6 @@ public class Parser {
 			}
 			switch(op) {
 				case '-':
-					coefficient = -coefficient;
 					result -= partialResult;
 					break;
 				case '+':
@@ -258,44 +257,9 @@ public class Parser {
 		return result;		
 	}
 	
-	// ´ë°ýÈ£ []
+	
+	// °ýÈ£()
 	private double evalExp6() throws ParserException{
-		double result;
-		
-		if(token.contentEquals("[")) {
-			getToken();
-			result = evalExp2();
-			if(!token.equals("]"))
-				handleErr(UNBALPARENS);
-			getToken();
-		}
-		
-		else
-			result = evalExp7();
-		
-		return result;
-	}
-	
-	// Áß°ýÈ£ {}
-	private double evalExp7() throws ParserException{
-		double result;
-		
-		if(token.contentEquals("{")) {
-			getToken();
-			result = evalExp2();
-			if(!token.equals("}"))
-				handleErr(UNBALPARENS);
-			getToken();
-		}
-		else
-			result = evalExp8();
-		
-		
-		return result;
-	}
-	
-	// ¼Ò°ýÈ£()
-	private double evalExp8() throws ParserException{
 		double result;
 		
 		if(token.contentEquals("(")) {
