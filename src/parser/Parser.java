@@ -25,6 +25,7 @@ public class Parser {
 	final int DELIMITER = 1;	// 연산자와 괄호
 	final int VARIABLE = 2;
 	final int NUMBER = 3;
+	final int UNKNOWN = 4;	// 미지수
 	
 	// 에러 종류에 대한 상수값
 	final int SYNTAX = 0;	// 문맥에 맞지 않는 표현
@@ -43,6 +44,11 @@ public class Parser {
 	// 변수형을 위한 배열
 	private double vars[] = new double[26];
 	
+	// 방정식 상수값
+	private int expPos;	// 판별중인 항의 위치 / 0: 좌항, 1: 우항
+	private int unknownPos;	// 미지수가 있는 위치
+	private double coefficient;	// 계수
+	
 	
 	
 	// 파서의 시작점, 연산 시작
@@ -50,6 +56,10 @@ public class Parser {
 		double result;
 		exp = expstr;
 		expIdx = 0;
+		
+		expPos = 0;
+		unknownPos = 0;
+		coefficient = 1;
 		
 		getToken();
 		if(token.equals(EOE))
@@ -101,36 +111,26 @@ public class Parser {
 	
 	// 방정식 연산 처리
 	private double evalExp1_2() throws ParserException{
-		char op;
 		double result;
 		double patialResult;
-		double sizeUnknown;	// 미지수 상수
+		double unknownResult;
 		
 		result = evalExp2();	// 이전까지의 연산 계산
 		
-		if (token.charAt(0) == '#') {
+		// 방정식
+		if(token.equals("=")) {
 			getToken();
-			
-			// 미지수 상수 처리
-			if(tokType == NUMBER) {
-				sizeUnknown = atom();
-				getToken();
-			}
-			else
-				sizeUnknown = 1;
-			
-			// 연산자 저장
-			if (tokType == DELIMITER) {
-				op = token.charAt(0);
-				getToken();				
-			}
-			else
-				handleErr(SYNTAX);
-			
+			// 우항 계산
+			expPos = 1;
 			patialResult = evalExp2();
+
+			if(unknownPos == 0)
+				unknownResult = (patialResult - result)/coefficient;
+			else
+				unknownResult = (result - patialResult)/coefficient;
 			
-			// 반복 수행하며 방정식 해를 구함
 			
+			return unknownResult;
 		}
 		
 		return result;
@@ -144,12 +144,19 @@ public class Parser {
 		double partialResult;
 		
 		result = evalExp3();
+		if (tokType == UNKNOWN) {
+			getToken();
+		}
 		
 		while((op = token.charAt(0)) == '+' || op == '-') {
 			getToken();
 			partialResult = evalExp3();
+			if (tokType == UNKNOWN) {
+				getToken();
+			}
 			switch(op) {
 				case '-':
+					coefficient = -coefficient;
 					result -= partialResult;
 					break;
 				case '+':
@@ -166,12 +173,29 @@ public class Parser {
 		char op;
 		double result;
 		double partialResult;
+		boolean checkCoefficient = false;
 		
 		result = evalExp4();
+		// 미지수일경우 계수 저장
+		if(tokType == UNKNOWN) {
+			checkCoefficient = true;
+			getToken();
+		}
 		
 		while((op = token.charAt(0)) == '*' || op == '/' || op == '%') {
 			getToken();
 			partialResult = evalExp4();
+			// 미지수일 경우 계수 저장
+			if (checkCoefficient) {
+				coefficient = partialResult;
+				checkCoefficient = false;
+				}
+			if (tokType == UNKNOWN) {
+				coefficient = result;
+				getToken();
+			}
+			
+			// 방정식인 경우 패스
 			switch (op) {
 			case '*':
 				result *= partialResult;
@@ -288,6 +312,8 @@ public class Parser {
 	}
 	
 	
+	
+	
 	// 숫자나 변수의 값을 가져온다
 	private double atom() throws ParserException{
 		double result = 0.0;
@@ -306,6 +332,12 @@ public class Parser {
 				result = findVar(token);
 				getToken();
 				break;
+				
+			case UNKNOWN:
+				result = 0;
+				unknownPos = expPos;
+				break;
+				
 				
 			default:
 				handleErr(SYNTAX);
@@ -379,6 +411,12 @@ public class Parser {
 			}
 			tokType = NUMBER;
 		}
+		// 미지수인지 판별
+		else if(isUnknown(exp.charAt(expIdx))) {
+			token += exp.charAt(expIdx);
+			expIdx++;
+			tokType = UNKNOWN;
+		}
 		// 그 외 정의되지 않은 형이면 표현식이 종료된 것으로 간주
 		else {
 			token = EOE;
@@ -389,8 +427,16 @@ public class Parser {
 	
 	// 연산자인 경우 true 아니면 false
 	private boolean isDelim(char c) {
-		if((" +-/*%^=(){}[]#".indexOf(c) != -1))
+		if((" +-/*%^=(){}[]".indexOf(c) != -1))
 			return true;
+		return false;
+	}
+	
+	// 미지수인 경우 true
+	private boolean isUnknown(char c) {
+		if("#".indexOf(c) != -1) {
+			return true;
+			}
 		return false;
 	}
 	
