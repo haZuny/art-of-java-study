@@ -24,11 +24,11 @@ class SBasic {
 
 // 토큰 타입  
 	final int NONE = 0;
-	final int DELIMITER = 1;	// 연산자와 괄호
-	final int VARIABLE = 2;	// 변수
-	final int NUMBER = 3;	// 숫자
-	final int COMMAND = 4;	// BASIC 키워드
-	final int QUOTEDSTR = 5;	// 인용부호가 있는 문자열
+	final int DELIMITER = 1; // 연산자와 괄호
+	final int VARIABLE = 2; // 변수
+	final int NUMBER = 3; // 숫자
+	final int COMMAND = 4; // BASIC 키워드
+	final int QUOTEDSTR = 5; // 인용부호가 있는 문자열
 
 // 에러 타입 
 	final int SYNTAX = 0;
@@ -63,6 +63,8 @@ class SBasic {
 	final int RETURN = 10;
 	final int END = 11;
 	final int EOL = 12;
+	final int REPEAT = 13;
+	final int UNTIL = 14;
 
 // 프로그램 끝 토큰
 	final String EOP = "\0";
@@ -91,7 +93,7 @@ class SBasic {
 	Keyword kwTable[] = { new Keyword("print", PRINT), // in this table.
 			new Keyword("input", INPUT), new Keyword("if", IF), new Keyword("then", THEN), new Keyword("goto", GOTO),
 			new Keyword("for", FOR), new Keyword("next", NEXT), new Keyword("to", TO), new Keyword("gosub", GOSUB),
-			new Keyword("return", RETURN), new Keyword("end", END) };
+			new Keyword("return", RETURN), new Keyword("end", END), new Keyword("repeat", REPEAT), new Keyword("until", UNTIL) };
 
 	private char[] prog; // 프로그램 배열을 참조
 	private int progIdx; // 프로그램의 위치에 대한 인덱스
@@ -127,6 +129,9 @@ class SBasic {
 
 // gosub를 위한 스택 
 	private Stack gStack;
+
+// repeat을 위한 스택
+	private Stack rStack;
 
 // 관계 연산자
 	char rops[] = { GE, NE, LE, '<', '>', '=', 0 };
@@ -185,6 +190,7 @@ class SBasic {
 		fStack = new Stack();
 		labelTable = new TreeMap();
 		gStack = new Stack();
+		rStack = new Stack();
 		progIdx = 0;
 
 		scanLabels(); // 프로그램 내에서 레이블을 검색
@@ -227,6 +233,12 @@ class SBasic {
 					break;
 				case RETURN:
 					greturn();
+					break;
+				case REPEAT:
+					repeat();
+					break;
+				case UNTIL:
+					until();
 					break;
 				case END:
 					return;
@@ -316,7 +328,7 @@ class SBasic {
 				System.out.print(token);
 				len += token.length();
 				getToken();
-			} 
+			}
 			// 수식
 			else {
 				putBack();
@@ -354,8 +366,7 @@ class SBasic {
 		if (kwToken == EOL || token.equals(EOP)) {
 			if (!lastDelim.equals(";") && !lastDelim.equals(","))
 				System.out.println();
-		}
-		else
+		} else
 			handleErr(SYNTAX);
 	}
 
@@ -521,6 +532,40 @@ class SBasic {
 			handleErr(RETURNWITHOUTGOSUB);
 		}
 
+	}
+
+// REPEAT 동작
+	private void repeat() throws InterpreterException {
+		rStack.push(new Integer(progIdx));
+		// 리턴될 위치를 저장
+		getToken();
+	}
+
+// UNTILE 동작
+	private void until() throws InterpreterException {
+		Integer t;
+		double value;
+
+		// 조건 연산 식을 가져옴
+		value = evaluate();
+		
+		// 조건에 도달하지 못했으면 반복
+		if (value == 0.0) {
+			try {
+				// 프로그램 인덱스를 복구
+				t = (Integer) rStack.peek();
+				progIdx = t.intValue();
+			} catch (EmptyStackException exc) {
+				handleErr(RETURNWITHOUTGOSUB);
+			}
+		}
+		else {
+			try {
+				rStack.pop();
+			} catch (EmptyStackException exc) {
+				handleErr(RETURNWITHOUTGOSUB);
+			}
+		}
 	}
 
 // **************** 수식 파서 **************** 
@@ -873,7 +918,7 @@ class SBasic {
 			tokType = QUOTEDSTR;
 		}
 		// 정의되지 않은 문자인 경우 프로그램 종료
-		else { 
+		else {
 			token = EOP;
 			return;
 		}
