@@ -7,46 +7,46 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-// The Download Manager.
+// 다운로드 매니저
 public class DownloadManager extends JFrame
   implements Observer
 {
-  // Add download text field.
+  // 다운로드를 추가하는 텍스트 필드
   private JTextField addTextField;
 
-  // Download table's data model.
+  // 다운로드 테이블의 데이터 모델
   private DownloadsTableModel tableModel;
   
-  // Table listing downloads.
+  // 다운로드 리스트 테이블
   private JTable table;
 
-  // These are the buttons for managing the selected download.
+  // 선택된 다운로드를 관리하는 버튼들
   private JButton pauseButton, resumeButton;
   private JButton cancelButton, clearButton;
 
-  // Currently selected download.
+  // 현재 선택된 다운로드
   private Download selectedDownload;
 
-  // Flag for whether or not table selection is being cleared.
+  // 테이블 선택이 삭제되었는지 여부를 나타내는 플래그
   private boolean clearing;
 
-  // Constructor for Download Manager.
+  // 생성자
   public DownloadManager()
   {
-    // Set application title.
+    // 타이틀 설정
     setTitle("Download Manager");
 
-    // Set window size.
+    // 윈도우 크기 설정
     setSize(640, 480);
 
-    // Handle window closing events.
+    // 윈도우가 닫힐 대의 이벤트를 처리
     addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent e) {
         actionExit();
       }
     });
 
-    // Set up file menu.
+    // 파일 메뉴 설정
     JMenuBar menuBar = new JMenuBar();
     JMenu fileMenu = new JMenu("File");
     fileMenu.setMnemonic(KeyEvent.VK_F);
@@ -61,7 +61,7 @@ public class DownloadManager extends JFrame
     menuBar.add(fileMenu);
     setJMenuBar(menuBar);
 
-    // Set up add panel.
+    // add 패널을 설정
     JPanel addPanel = new JPanel();
     addTextField = new JTextField(30);
     addPanel.add(addTextField);
@@ -73,7 +73,7 @@ public class DownloadManager extends JFrame
     });
     addPanel.add(addButton);
 
-    // Set up Downloads table.
+    // Downloads 테이블을 설정
     tableModel = new DownloadsTableModel();
     table = new JTable(tableModel);
     table.getSelectionModel().addListSelectionListener(new
@@ -82,19 +82,19 @@ public class DownloadManager extends JFrame
         tableSelectionChanged();
       }
     });
-    // Allow only one row at a time to be selected.
+    // 한 번에 한 행만 선택되도록 함
     table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
   
-    // Set up ProgressBar as renderer for progress column.
+    // ProgressBar를 progress 열의 렌더러로 설정
     ProgressRenderer renderer = new ProgressRenderer(0, 100);
     renderer.setStringPainted(true); // show progress text
     table.setDefaultRenderer(JProgressBar.class, renderer);
 
-    // Set table's row height large enough to fit JProgressBar.
+    // JProgressBar에 맞도록 테이블 행의 높이를 충분히 크게 설정
     table.setRowHeight(
       (int) renderer.getPreferredSize().getHeight());
 
-    // Set up downloads panel.
+    // downloads 패널을 설정
     JPanel downloadsPanel = new JPanel();
     downloadsPanel.setBorder(
       BorderFactory.createTitledBorder("Downloads"));
@@ -102,7 +102,7 @@ public class DownloadManager extends JFrame
     downloadsPanel.add(new JScrollPane(table),
       BorderLayout.CENTER);
 
-    // Set up buttons panel.
+    // buttons 패널을 설정
     JPanel buttonsPanel = new JPanel();
     pauseButton = new JButton("Pause");
     pauseButton.addActionListener(new ActionListener() {
@@ -137,24 +137,24 @@ public class DownloadManager extends JFrame
     clearButton.setEnabled(false);
     buttonsPanel.add(clearButton);
 
-    // Add panels to display.
+    // 출력할 패널들을 추가
     getContentPane().setLayout(new BorderLayout());
     getContentPane().add(addPanel, BorderLayout.NORTH);
     getContentPane().add(downloadsPanel, BorderLayout.CENTER);
     getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
   }
 
-  // Exit this program.
+  // 프로그램을 종료
   private void actionExit() {
     System.exit(0);
   }
 
-  // Add a new download.
+  // 새로운 다운로드를 추가
   private void actionAdd() {
     URL verifiedUrl = verifyUrl(addTextField.getText());
     if (verifiedUrl != null) {
       tableModel.addDownload(new Download(verifiedUrl));
-      addTextField.setText(""); // reset add text field
+      addTextField.setText(""); // add 텍스트 필드 리셋
     } else {
       JOptionPane.showMessageDialog(this,
         "Invalid Download URL", "Error",
@@ -162,13 +162,13 @@ public class DownloadManager extends JFrame
     }
   }
 
-  // Verify download URL.
+  // 다운로드할 URL을 확인
   private URL verifyUrl(String url) {
     // Only allow HTTP URLs.
     if (!url.toLowerCase().startsWith("http://"))
       return null;
 
-    // Verify format of URL.
+    // URL의 형식을 검증
     URL verifiedUrl = null;
     try {
       verifiedUrl = new URL(url);
@@ -176,23 +176,20 @@ public class DownloadManager extends JFrame
       return null;
     }
 
-    // Make sure URL specifies a file.
+    // URL이 파일을 지정하고 있는지 확인
     if (verifiedUrl.getFile().length() < 2)
       return null;
 
     return verifiedUrl;
   }
 
-  // Called when table row selection changes.
+  // 테이블의 행 선택이 바귈 대 호출됨
   private void tableSelectionChanged() {
-    /* Unregister from receiving notifications
-       from the last selected download. */
+    // 마지막 선택된다운로드로부터 통보받기를 취소함
     if (selectedDownload != null)
       selectedDownload.deleteObserver(DownloadManager.this);
 
-    /* If not in the middle of clearing a download,
-       set the selected download and register to
-       receive notifications from it. */
+    // 다운로드를 리스트에서 제거하는 중이 아니라면 선택된 다운로드를 설정, 그 다운로드가 현재 객체로부터 통보받을 수 잇도록 설정
     if (!clearing) {
       selectedDownload =
         tableModel.getDownload(table.getSelectedRow());
@@ -201,25 +198,25 @@ public class DownloadManager extends JFrame
     }
   }
 
-  // Pause the selected download.
+  // 선택된 다운로드 정지
   private void actionPause() {
     selectedDownload.pause();
     updateButtons();
   }
 
-  // Resume the selected download.
+  // 선택된 다운로드 재개
   private void actionResume() {
     selectedDownload.resume();
     updateButtons();
   }
 
-  // Cancel the selected download.
+  // 선택된 다운로드 취소
   private void actionCancel() {
     selectedDownload.cancel();
     updateButtons();
   }
 
-  // Clear the selected download.
+  // 선택된 다운로드를 리스트에서 삭제
   private void actionClear() {
     clearing = true;
     tableModel.clearDownload(table.getSelectedRow());
@@ -228,8 +225,7 @@ public class DownloadManager extends JFrame
     updateButtons();
   }
 
-  /* Update each button's state based off of the
-     currently selected download's status. */
+  // 현재 선택된 다운로드의 상태에 기반해서 각 버튼의 상태를 갱신함
   private void updateButtons() {
     if (selectedDownload != null) {
       int status = selectedDownload.getStatus();
@@ -252,14 +248,14 @@ public class DownloadManager extends JFrame
           cancelButton.setEnabled(false);
           clearButton.setEnabled(true);
           break;
-        default: // COMPLETE or CANCELLED
+        default: // COMPLETE 또는 CANCELLED
           pauseButton.setEnabled(false);
           resumeButton.setEnabled(false);
           cancelButton.setEnabled(false);
           clearButton.setEnabled(true);
       }
     } else {
-      // No download is selected in table.
+      // 테이블에 있는 어던 다운로드도 선택되지 않은 경우
       pauseButton.setEnabled(false);
       resumeButton.setEnabled(false);
       cancelButton.setEnabled(false);
@@ -267,15 +263,14 @@ public class DownloadManager extends JFrame
     }
   }
 
-  /* Update is called when a Download notifies its
-     observers of any changes. */
+  // Download에 대한 변화가 일어나서 Download 객체가 관찰자들에게 통보할대 호출됨
   public void update(Observable o, Object arg) {
     // Update buttons if the selected download has changed.
     if (selectedDownload != null && selectedDownload.equals(o))
       updateButtons();
   }
 
-  // Run the Download Manager.
+  // 다운로드 매니저를 실행시킴
   public static void main(String[] args) {
     DownloadManager manager = new DownloadManager();
     manager.show();

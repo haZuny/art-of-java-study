@@ -132,6 +132,7 @@ class Download extends Observable implements Runnable {
       file.seek(downloaded);
 
       stream = connection.getInputStream();
+      
       while (status == DOWNLOADING) {
         // 다운로드할 부분이 얼마나 더 남아 있는지에 다라 버퍼의 크기를 조절
         byte buffer[];

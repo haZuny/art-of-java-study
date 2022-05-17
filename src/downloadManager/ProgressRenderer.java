@@ -4,22 +4,21 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
-// This class renders a JProgressBar in a table cell.
+// 테이블 셀에 JProgressBar 렌더링
 class ProgressRenderer extends JProgressBar
   implements TableCellRenderer
 {
-  // Constructor for ProgressRenderer.
+  // 생성자
   public ProgressRenderer(int min, int max) {
     super(min, max);
   }
 
-  /* Returns this JProgressBar as the renderer
-     for the given table cell. */
+  // 테이블셀에 대해 JProgressBar 객체를 렌더러로서 리턴
   public Component getTableCellRendererComponent(
     JTable table, Object value, boolean isSelected,
     boolean hasFocus, int row, int column)
   {
-    // Set JProgressBar's percent complete value.
+    // JProgressBar의 완료 백분율 값을 설정
     setValue((int) ((Float) value).floatValue());
     return this;
   }

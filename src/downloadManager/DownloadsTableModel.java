@@ -4,66 +4,66 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
-// This class manages the download table's data.
+// 다운로드 테이블의 데이터를 관리하는 클래스
 class DownloadsTableModel extends AbstractTableModel
   implements Observer
 {
-  // These are the names for the table's columns.
+  // 테이블의 각 열에 대한 이름들
   private static final String[] columnNames = {"URL", "Size",
     "Progress", "Status"};
 
-  // These are the classes for each column's values.
+  // 각 열의 값에 대한 클래스들
   private static final Class[] columnClasses = {String.class,
     String.class, JProgressBar.class, String.class};
 
-  // The table's list of downloads.
+  // 테이블의 다운로드 리스트
   private ArrayList downloadList = new ArrayList();
 
-  // Add a new download to the table.
+  // 새로운 다운로드를 테이블에 추가
   public void addDownload(Download download) {
-    // Register to be notified when the download changes.
+    // 다운로드가 변경될 대 통보받도록 등록
     download.addObserver(this);
 
     downloadList.add(download);
 
-    // Fire table row insertion notification to table.
+    // 테이블 행 삽입을 테이블에게 통보
     fireTableRowsInserted(getRowCount() - 1, getRowCount() - 1);
   }
 
-  // Get a download for the specified row.
+  // 지정한 행에 대한 다운로드를 얻음
   public Download getDownload(int row) {
     return (Download) downloadList.get(row);
   }
 
-  // Remove a download from the list.
+  // 리스트에서 다운로드를 삭제
   public void clearDownload(int row) {
     downloadList.remove(row);
 
-    // Fire table row deletion notification to table.
+    // 테이블 행 삭제를 테이블에게 통보
     fireTableRowsDeleted(row, row);
   }
 
-  // Get table's column count.
+  // 테이블의 열 개수를 얻음
   public int getColumnCount() {
     return columnNames.length;
   }
 
-  // Get a column's name.
+  // 열의 이름을 얻음
   public String getColumnName(int col) {
      return columnNames[col];
   }
 
-  // Get a column's class.
+  // 열의 클래스를 얻음
   public Class getColumnClass(int col) {
     return columnClasses[col];
   }
 
-  // Get table's row count.
+  // 테이블의 행 개수를 얻음
   public int getRowCount() {
     return downloadList.size();
   }
 
-  // Get value for a specific row and column combination.
+  // 지정한 열과 행의 조합에 대한 값을 얻음
   public Object getValueAt(int row, int col) {
     Download download = (Download) downloadList.get(row);
     switch (col) {
@@ -80,12 +80,11 @@ class DownloadsTableModel extends AbstractTableModel
     return "";
   }
 
-  /* Update is called when a Download notifies its
-     observers of any changes */
+  // Download에 대한 변화가 일어나서 Download 객체가 관찰자들에게 통보할 때 호출
   public void update(Observable o, Object arg) {
     int index = downloadList.indexOf(o);
 
-    // Fire table row update notification to table.
+    // 테이블 행 갱신을 테이블에게 통보
     fireTableRowsUpdated(index, index);
   }
 }
