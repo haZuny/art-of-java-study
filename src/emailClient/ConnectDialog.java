@@ -4,40 +4,40 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-/* This class displays a dialog for entering e-mail
-   server connection settings. */
+/* 이메일 서버에 접속하기 위한 연결 설정 정보를
+ * 입력하게 해주는 클래스 */
 public class ConnectDialog extends JDialog
 {
-  // These are the e-mail server types.
+  // 이메일 서버 타입
   private static final String[] TYPES = {"pop3", "imap"};
 
-  // Combo box for e-mail server types.
+  // 이메일 서버 타입을 설정하기 위한 콤보박스
   private JComboBox typeComboBox;
 
-  // Server, username and SMTP server text fields.
+  // 서버, 사용자 이름, SMTP 서버 텍스트 필드
   private JTextField serverTextField, usernameTextField;
   private JTextField smtpServerTextField;
 
-  // Password text field.
+  // 비밀번호 텍스트 필드
   private JPasswordField passwordField;
 
-  // Constructor for dialog.
+  //생성자
   public ConnectDialog(Frame parent)
   {
-    // Call super constructor, specifying that dialog is modal.
+    // 상위 클래스 생성자, 대화상자가 모달(modal)임을 명세
     super(parent, true);
 
-    // Set dialog title.
+    // 타이틀 설정
     setTitle("Connect");
 
-    // Handle closing events.
+    // closing 이벤트 핸들링
     addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent e) {
         actionCancel();
       }
     });
 
-    // Setup settings panel.
+    // 설정 패널
     JPanel settingsPanel = new JPanel();
     settingsPanel.setBorder(
       BorderFactory.createTitledBorder("Connection Settings"));
@@ -115,7 +115,7 @@ public class ConnectDialog extends JDialog
     layout.setConstraints(smtpServerTextField, constraints);
     settingsPanel.add(smtpServerTextField);
 
-    // Setup buttons panel.
+    // 버튼 패널 설정
     JPanel buttonsPanel = new JPanel();
     JButton connectButton = new JButton("Connect");
     connectButton.addActionListener(new ActionListener() {
@@ -132,19 +132,19 @@ public class ConnectDialog extends JDialog
     });
     buttonsPanel.add(cancelButton);
 
-    // Add panels to display.
+    // 패널을 컨테이너에 붙임
     getContentPane().setLayout(new BorderLayout());
     getContentPane().add(settingsPanel, BorderLayout.CENTER);
     getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
-    // Size dialog to components.
+    // 컴포넌트에 맞춰서 대화
     pack();
 
-    // Center dialog over application.
+    // 대화상자를 어플리케이션의 중앙에 맞춤
     setLocationRelativeTo(parent);
   }
 
-  // Validate connection settings and close dialog.
+  // 연결 설정을 확인하고 대화상자를 닫음
   private void actionConnect() {
     if (serverTextField.getText().trim().length() < 1
         || usernameTextField.getText().trim().length() < 1
@@ -156,36 +156,36 @@ public class ConnectDialog extends JDialog
       return;
     }
 
-    // Close dialog.
+    // 대화상자를 닫음
     dispose();
   }
 
-  // Cancel connecting and exit program.
+  // 연결을 취소하고 프로그램을 종료
   private void actionCancel() {
     System.exit(0);
   }
 
-  // Get e-mail server type.
-  public String getType() {
+  // 이메일 서버 타입 접근자
+  public String getServerType() {
     return (String) typeComboBox.getSelectedItem();
   }
 
-  // Get e-mail server.
+  // 이메일 서버 주소 접근자
   public String getServer() {
     return serverTextField.getText();
   }
 
-  // Get e-mail username.
+  // 이메일 사용자 이름 접근자
   public String getUsername() {
-    return usernameTextField.getText();
+	  return usernameTextField.getText();
   }
 
-  // Get e-mail password.
+  // 비밀번호 접근자
   public String getPassword() {
     return new String(passwordField.getPassword());
   }
 
-  // Get e-mail SMTP server.
+  // SMTP 서버 주소 접근자
   public String getSmtpServer() {
     return smtpServerTextField.getText();
   }

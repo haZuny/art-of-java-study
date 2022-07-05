@@ -1,3 +1,5 @@
+package emailClient;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
@@ -267,7 +269,7 @@ public class EmailClient extends JFrame
 
     // Build connection URL from connect dialog settings.
     StringBuffer connectionUrl = new StringBuffer();
-    connectionUrl.append(dialog.getType() + "://");
+    connectionUrl.append(dialog.getServerType() + "://");
     connectionUrl.append(dialog.getUsername() + ":");
     connectionUrl.append(dialog.getPassword() + "@");
     connectionUrl.append(dialog.getServer() + "/");

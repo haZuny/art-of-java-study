@@ -1,3 +1,5 @@
+package emailClient;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.mail.*;
