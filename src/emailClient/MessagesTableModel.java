@@ -1,3 +1,5 @@
+package emailClient;
+
 import java.util.*;
 import javax.mail.*;
 import javax.swing.*;

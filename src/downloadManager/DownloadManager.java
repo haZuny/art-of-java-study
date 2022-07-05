@@ -189,7 +189,8 @@ public class DownloadManager extends JFrame
     if (selectedDownload != null)
       selectedDownload.deleteObserver(DownloadManager.this);
 
-    // 다운로드를 리스트에서 제거하는 중이 아니라면 선택된 다운로드를 설정, 그 다운로드가 현재 객체로부터 통보받을 수 잇도록 설정
+    // 다운로드를 리스트에서 제거하는 중이 아니라면 선택된 다운로드를 설정,
+    // 그 다운로드가 현재 객체로부터 통보받을 수 잇도록 설정
     if (!clearing) {
       selectedDownload =
         tableModel.getDownload(table.getSelectedRow());
