@@ -5,47 +5,46 @@ import java.awt.event.*;
 import javax.mail.*;
 import javax.swing.*;
 
-// This class displays the dialog used for creating messages.
+// 메일 메시지 작성을 위한 클래스
 public class MessageDialog extends JDialog
 {
-  // Dialog message identifiers.
+  // 메시지 타입 식별자
   public static final int NEW = 0;
   public static final int REPLY = 1;
   public static final int FORWARD = 2;
 
-  // Message from, to and subject text fields.
+  // 송신자, 수신자, 제목 텍스트 필드
   private JTextField fromTextField, toTextField;
   private JTextField subjectTextField;
 
-  // Message content text area.
+  // 메시지 내용 텍스트 영역
   private JTextArea contentTextArea;
 
-  // Flag specifying whether or not dialog was cancelled.
+  // 대화상자가 취소 버튼을 클릭해서 닫혔는지 여부를 나타내는 플래그
   private boolean cancelled;
 
-  // Constructor for dialog.
+  // 생성자
   public MessageDialog(Frame parent, int type, Message message)
     throws Exception
   {
-    // Call super constructor, specifying that dialog is modal.
+    // 상위 클래스 생성자, 대화상자가 모달임을 명세
     super(parent, true);
 
-    /* Set dialog title and get message's "to", "subject"
-       and "content" values based on message type. */
+    /* 타이틀 설정 및 메시지 타입에 따른 수신자, 제목, 내용 값을 얻음 */
     String to = "", subject = "", content = "";
     switch (type) {
-      // Reply message.
+      // 답장 메시지
       case REPLY:
         setTitle("Reply To Message");
 
-        // Get message "to" value
+        // 수신자
         Address[] senders = message.getFrom();
         if (senders != null || senders.length > 0) {
           to = senders[0].toString();
         }
         to = message.getFrom()[0].toString();
 
-        // Get message subject.
+        // 제목
         subject = message.getSubject();
         if (subject != null && subject.length() > 0) {
           subject = "RE: " + subject;
@@ -53,18 +52,18 @@ public class MessageDialog extends JDialog
           subject = "RE:";
         }
 
-        // Get message content and add "REPLIED TO" notation.
+        // 메시지 내용
         content = "\n----------------- " +
                   "REPLIED TO MESSAGE" +
                   " -----------------\n" +
                   EmailClient.getMessageContent(message);
         break;
 
-      // Forward message.
+      // 전달 메시지
       case FORWARD:
         setTitle("Forward Message");
 
-        // Get message subject.
+        // 제목
         subject = message.getSubject();
         if (subject != null && subject.length() > 0) {
           subject = "FWD: " + subject;
@@ -72,26 +71,26 @@ public class MessageDialog extends JDialog
           subject = "FWD:";
         }
 
-        // Get message content and add "FORWARDED" notation.
+        // 메시지 내용
         content = "\n----------------- " +
                   "FORWARDED MESSAGE" +
                   " -----------------\n" +
                   EmailClient.getMessageContent(message);
         break;
 
-      // New message.
+      // 새 메시지
       default:
         setTitle("New Message");
     }
 
-    // Handle closing events.
+    // closing 이벤트 핸들링
     addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent e) {
         actionCancel();
       }
     });
 
-    // Setup fields panel.
+    // 메시지 필드 판넬 설정
     JPanel fieldsPanel = new JPanel();
     GridBagConstraints constraints;
     GridBagLayout layout = new GridBagLayout();
@@ -136,12 +135,12 @@ public class MessageDialog extends JDialog
     layout.setConstraints(subjectTextField, constraints);
     fieldsPanel.add(subjectTextField);
 
-    // Setup content panel.
+    // 메시지 내용 판낼 설정
     JScrollPane contentPanel = new JScrollPane();
     contentTextArea = new JTextArea(content, 10, 50);
     contentPanel.setViewportView(contentTextArea);
 
-    // Setup buttons panel.
+    // 버튼 판넬 설정
     JPanel buttonsPanel = new JPanel();
     JButton sendButton = new JButton("Send");
     sendButton.addActionListener(new ActionListener() {
@@ -158,20 +157,20 @@ public class MessageDialog extends JDialog
     });
     buttonsPanel.add(cancelButton);
 
-    // Add panels to display.
+    // 패널을 컨테이너에 붙임
     getContentPane().setLayout(new BorderLayout());
     getContentPane().add(fieldsPanel, BorderLayout.NORTH);
     getContentPane().add(contentPanel, BorderLayout.CENTER);
     getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
-    // Size dialog to components.
+    // 컴포넌트에 맞춰서 대화상자의 크기를 설정
     pack();
 
-    // Center dialog over application.
+    // 대화상자를 어플리케이션의 중앙에 맞춤
     setLocationRelativeTo(parent);
   }
 
-  // Validate message fields and close dialog.
+  // 메시지 필드를 확인하고 대화상자를 닫는다.
   private void actionSend() {
     if (fromTextField.getText().trim().length() < 1
         || toTextField.getText().trim().length() < 1
@@ -183,42 +182,42 @@ public class MessageDialog extends JDialog
       return;
     }
 
-    // Close dialog.
+    // 대화상자를 닫음
     dispose();
   }
 
-  // Cancel creating this message and close dialog.
+  // 메시지 생성을 취소하고 대화상자를 닫는다.
   private void actionCancel() {
     cancelled = true;
 
-    // Close dialog.
+    // 대화상자를 닫음
     dispose();
   }
 
-  // Show dialog.
+  // 대화상자를 보여준다.
   public boolean display() {
     show();
 
-    // Return whether or not display was successful.
+    // 전송 버튼과 취소 버튼 중 어떤 것에 의해 닫히는가를 리턴
     return !cancelled;
   }
 
-  // Get message's "From" field value.
+  // 송신자 필드 접근자
   public String getFrom() {
     return fromTextField.getText();
   }
 
-  // Get message's "To" field value.
+  // 수신자 필드 접근자
   public String getTo() {
     return toTextField.getText();
   }
 
-  // Get message's "Subject" field value.
+  // 제목 필드 접근자
   public String getSubject() {
     return subjectTextField.getText();
   }
 
-  // Get message's "content" field value.
+  // 메시지 내용 필드 접근자
   public String getContent() {
     return contentTextArea.getText();
   }
