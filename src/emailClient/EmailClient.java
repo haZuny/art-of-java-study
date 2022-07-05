@@ -9,51 +9,50 @@ import javax.mail.internet.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-// The E-mail Client.
+// 이메일 클라이언트
 public class EmailClient extends JFrame
 {
-  // Message table's data model.
+  // M메시지 테이블의 데이터 모델
   private MessagesTableModel tableModel;
 
-  // Table listing messages.
+  // 메시지 목록을 가지는 테이블
   private JTable table;
 
-  // This the text area for displaying messages.
+  // 메시지 목록을 가지는 텍스트 영역
   private JTextArea messageTextArea;
 
-  /* This is the split panel that holds the messages
-     table and the message view panel. */
+  /* 메시지 테이블과 메시지 뷰 판넬을 가지는 스플릿 판넬 */
   private JSplitPane splitPane;
 
-  // These are the buttons for managing the selected message.
+  // 답장, 전달, 삭제 버튼
   private JButton replyButton, forwardButton, deleteButton;
 
-  // Currently selected message in table.
+  // 테이블에서 현재 선택된 메시지
   private Message selectedMessage;
 
-  // Flag for whether or not a message is being deleted.
+  // 어떤 메시지가 현재 삭제되고 있는지 여부를 나타내는 플래그
   private boolean deleting;
 
-  // This is the JavaMail session.
+  // JavaMail 세션
   private Session session;
 
-  // Constructor for E-mail Client.
+  // 생성자
   public EmailClient()
   {
-    // Set application title.
+    // 타이틀 설정
     setTitle("E-mail Client");
 
-    // Set window size.
+    // 윈도우 크기 설정
     setSize(640, 480);
 
-    // Handle window closing events.
+    // 윈도우 종료 이벤트 처리
     addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent e) {
         actionExit();
       }
     });
 
-    // Setup file menu.
+    // 파일 메뉴 설정
     JMenuBar menuBar = new JMenuBar();
     JMenu fileMenu = new JMenu("File");
     fileMenu.setMnemonic(KeyEvent.VK_F);
@@ -68,7 +67,7 @@ public class EmailClient extends JFrame
     menuBar.add(fileMenu);
     setJMenuBar(menuBar);
 
-    // Setup buttons panel.
+    // 버튼 패널 설정
     JPanel buttonPanel = new JPanel();
     JButton newButton = new JButton("New Message");
     newButton.addActionListener(new ActionListener() {
@@ -78,7 +77,7 @@ public class EmailClient extends JFrame
     });
     buttonPanel.add(newButton);
 
-    // Setup messages table.
+    // 메시지 테이블 설정
     tableModel = new MessagesTableModel();
     table = new JTable(tableModel);
     table.getSelectionModel().addListSelectionListener(new
@@ -87,10 +86,10 @@ public class EmailClient extends JFrame
         tableSelectionChanged();
       }
     });
-    // Allow only one row at a time to be selected.
+    // 한 번에 하나의 행만 선택되도록 함
     table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-    // Setup E-mails panel.
+    //이메일 패널 설정
     JPanel emailsPanel = new JPanel();
     emailsPanel.setBorder(
       BorderFactory.createTitledBorder("E-mails"));
@@ -101,7 +100,7 @@ public class EmailClient extends JFrame
     emailsPanel.setLayout(new BorderLayout());
     emailsPanel.add(splitPane, BorderLayout.CENTER);
 
-    // Setup buttons panel 2.
+    // 버튼 패널 2 설정
     JPanel buttonPanel2 = new JPanel();
     replyButton = new JButton("Reply");
     replyButton.addActionListener(new ActionListener() {
@@ -128,27 +127,26 @@ public class EmailClient extends JFrame
     deleteButton.setEnabled(false);
     buttonPanel2.add(deleteButton);
 
-    // Add panels to display.
+    // 패널을 컨테이너에 붙임
     getContentPane().setLayout(new BorderLayout());
     getContentPane().add(buttonPanel, BorderLayout.NORTH);
     getContentPane().add(emailsPanel, BorderLayout.CENTER);
     getContentPane().add(buttonPanel2, BorderLayout.SOUTH);
   }
 
-  // Exit this program.
+  // 프로그램 종료
   private void actionExit() {
     System.exit(0);
   }
 
-  // Create a new message.
+  // 새 메시지 작성
   private void actionNew () {
     sendMessage(MessageDialog.NEW, null);
   }
 
-  // Called when table row selection changes.
+  // 테이블의 행이 선택될 때마다 호출
   private void tableSelectionChanged() {
-    /* If not in the middle of deleting a message, set
-       the selected message and display it. */
+    // 선택된 행에 들어있는 메시지가 삭제중이 아니라면, 사용자에게 보여줌
     if (!deleting) {
       selectedMessage =
         tableModel.getMessage(table.getSelectedRow());
@@ -157,22 +155,22 @@ public class EmailClient extends JFrame
     }
   }
 
-  // Reply to a message.
+  // 답장 메시지 보내기
   private void actionReply() {
     sendMessage(MessageDialog.REPLY, selectedMessage);
   }
 
-  // Forward a message.
+  // 메시지 전달하기
   private void actionForward() {
     sendMessage(MessageDialog.FORWARD, selectedMessage);
   }
 
-  // Delete the selected message.
+  // 선택된 메시지 삭제
   private void actionDelete() {
     deleting = true;
 
     try {
-      // Delete message from server.
+      // 서버에서 메시지 삭제
       selectedMessage.setFlag(Flags.Flag.DELETED, true);
       Folder folder = selectedMessage.getFolder();
       folder.close(true);
@@ -181,24 +179,24 @@ public class EmailClient extends JFrame
       showError("Unable to delete message.", false);
     }
 
-    // Delete message from table.
+    // 테이블에서 메시지 삭제
     tableModel.deleteMessage(table.getSelectedRow());
 
-    // Update GUI.
+    // GUI 갱신
     messageTextArea.setText("");
     deleting = false;
     selectedMessage = null;
     updateButtons();
   }
 
-  // Send the specified message.
+  // 메시지 보내기
   private void sendMessage(int type, Message message) {
-    // Display message dialog to get message values.
+    // 메시지 대화상자를 띄운다
     MessageDialog dialog;
     try {
       dialog = new MessageDialog(this, type, message);
       if (!dialog.display()) {
-        // Return if dialog was cancelled.
+        // 취소 버튼에 의해 리턴되는 경우
         return;
       }
     } catch (Exception e) {
@@ -207,7 +205,7 @@ public class EmailClient extends JFrame
     }
 
     try {
-      // Create a new message with values from dialog.
+      // 메시지 대화상자의 접근자를 이용해 새 메시지 작성
       Message newMessage = new MimeMessage(session);
       newMessage.setFrom(new InternetAddress(dialog.getFrom()));
       newMessage.setRecipient(Message.RecipientType.TO,
@@ -216,16 +214,16 @@ public class EmailClient extends JFrame
       newMessage.setSentDate(new Date());
       newMessage.setText(dialog.getContent());
 
-      // Send new message.
+      // 새 메시지를 보냄
       Transport.send(newMessage);
     } catch (Exception e) {
       showError("Unable to send message.", false);
     }
   }
 
-  // Show the selected message in the content panel.
+  // 선택된 메시지를 보여줌
   private void showSelectedMessage() {
-    // Show hour glass cursor while message is loaded.
+    // 메시지가 로딩되는 동안 커서를 모래시계로 바꾼다
     setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     try {
       messageTextArea.setText(
@@ -234,13 +232,12 @@ public class EmailClient extends JFrame
     } catch (Exception e) {
       showError("Unabled to load message.", false);
     } finally {
-      // Return to default cursor.
+      // 커서를 원래대로 되돌린다
       setCursor(Cursor.getDefaultCursor());
     }
   }
 
-  /* Update each button's state based off of whether or not
-     there is a message currently selected in the table. */
+  /* 각 버튼의 상태를 테이블에 현재 선택된 메시지가 잇는지 여부에 따라 갱신 */
   private void updateButtons() {
     if (selectedMessage != null) {
       replyButton.setEnabled(true);
@@ -253,29 +250,28 @@ public class EmailClient extends JFrame
     }
   }
 
-  // Show the application window on the screen.
+  // 화면에 어플리케이션 윈도우를 띄운다
   public void show() {
     super.show();
 
-    // Update the split panel to be divided 50/50.
+    // 스플릿 판넬의 비율을 50대 50으로 맞춘다
     splitPane.setDividerLocation(.5);
   }
 
-  // Connect to e-mail server.
+  // 이메일 서버에 접속
   public void connect() {
-    // Display connect dialog.
+    // 연결 대화상자를 띄운다
     ConnectDialog dialog = new ConnectDialog(this);
     dialog.show();
 
-    // Build connection URL from connect dialog settings.
+    // 연결 대화상자로부터 접속 url을 만든다
     StringBuffer connectionUrl = new StringBuffer();
-    connectionUrl.append(dialog.getType() + "://");
+    connectionUrl.append(dialog.getServerType() + "://");
     connectionUrl.append(dialog.getUsername() + ":");
     connectionUrl.append(dialog.getPassword() + "@");
     connectionUrl.append(dialog.getServer() + "/");
 
-    /* Display dialog stating that messages are
-       currently being downloaded from server. */
+    // 메시지를 다운로드하고 있음을 알리는 다운로딩 대화상자를 띄운다.
     final DownloadingDialog downloadingDialog =
       new DownloadingDialog(this);
     SwingUtilities.invokeLater(new Runnable() {
@@ -284,55 +280,56 @@ public class EmailClient extends JFrame
       }
     });
 
-    // Establish JavaMail session and connect to server.
+    // jAVAmAIL 세션을 초기화 한 뒤 서버에 접속
     Store store = null;
     try {
-      // Initialize JavaMail session with SMTP server.
+      // javaMail 세션을 SMTP 서버로 초기화
       Properties props = new Properties();
       props.put("mail.smtp.host", dialog.getSmtpServer());
       session = Session.getDefaultInstance(props, null);
 
-      // Connect to e-mail server.
+      // 이메일 서버에 접속
       URLName urln = new URLName(connectionUrl.toString());
       store = session.getStore(urln);
       store.connect();
+      System.out.println(connectionUrl);
     } catch (Exception e) {
-      // Close the downloading dialog.
+      // 다운로딩 대화상자를 닫는다.
       downloadingDialog.dispose();
 
-      // Show error dialog.
+      // 에러 출력
       showError("Unable to connect.", true);
     }
 
-    // Download message headers from server.
+    // 서버로부터 메시지 헤더를 다운로드
     try {
-      // Open main "INBOX" folder.
+      // 받은 편지함 폴더를 연다.
       Folder folder = store.getFolder("INBOX");
       folder.open(Folder.READ_WRITE);
 
-      // Get folder's list of messages.
+      // 메시지 리스트를 받아온다.
       Message[] messages = folder.getMessages();
 
-      // Retrieve message headers for each message in folder.
+      // 폴더의 각 메시지에 대해 헤더 정보를 가져온다
       FetchProfile profile = new FetchProfile();
       profile.add(FetchProfile.Item.ENVELOPE);
       folder.fetch(messages, profile);
 
-      // Put messages in table.
+      // 테이블에 메시지를 넣는다.
       tableModel.setMessages(messages);
     } catch (Exception e) {
-      // Close the downloading dialog.
+      // 다운로딩 대화상자를 닫는다.
       downloadingDialog.dispose();
 
-      // Show error dialog.
+      // 에러 출력
       showError("Unable to download messages.", true);
     }
 
-    // Close the downloading dialog.
+    // 다운로딩 대화상자를 닫는다.
     downloadingDialog.dispose();
   }
 
-  // Show error dialog and exit afterwards if necessary.
+  // 필요하다면 에러를 출력하고 프로그램을 종료한다
   private void showError(String message, boolean exit) {
     JOptionPane.showMessageDialog(this, message, "Error",
       JOptionPane.ERROR_MESSAGE);
@@ -340,7 +337,7 @@ public class EmailClient extends JFrame
       System.exit(0);
   }
 
-  // Get a message's content.
+  // 메시지 내용을 얻는다.
   public static String getMessageContent(Message message)
     throws Exception {
     Object content = message.getContent();
@@ -359,12 +356,12 @@ public class EmailClient extends JFrame
     }
   }
 
-  // Run the E-mail Client.
+  // 이메일 클라이언트 실행
   public static void main(String[] args) {
     EmailClient client = new EmailClient();
     client.show();
 
-    // Display connect dialog.
+    // 연결 대화상자를 띄운다
     client.connect();
   }
 }

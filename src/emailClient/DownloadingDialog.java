@@ -3,33 +3,32 @@ package emailClient;
 import java.awt.*;
 import javax.swing.*;
 
-/* This class displays a simple dialog instructing the user
-   that messages are being downloaded. */
+/* 메시지가 다운로딩 되고 있음을 사용자에게 알리는 간단한 대화상자 */
 public class DownloadingDialog extends JDialog
 {
-  // Constructor for dialog.
+  // 생성자
   public DownloadingDialog(Frame parent)
   {
-    // Call super constructor, specifying that dialog is modal.
+    // 상위 클래스 생성자, 대화상자가 모달임을 명세
     super(parent, true);
 
-    // Set dialog title.
+    // 타이틀 설정
     setTitle("E-mail Client");
 
-    // Instruct window not to close when the "X" is clicked.
+    // X가 클릭되더라도 윈도우가 닫히지 않도록 함
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
-    // Put a message with a nice border in this dialog.
+    // 다운로드 하는 동안 메시지 출력
     JPanel contentPane = new JPanel();
     contentPane.setBorder(
       BorderFactory.createEmptyBorder(5, 5, 5, 5));
     contentPane.add(new JLabel("Downloading messages..."));
     setContentPane(contentPane);
 
-    // Size dialog to components.
+    // 컴포넌트에 맞춰서 대화상자의 크기를 설정
     pack();
 
-    // Center dialog over application.
+    // 대화상자를 어플리케이션의 중앙에 맞춤
     setLocationRelativeTo(parent);
   }
 }

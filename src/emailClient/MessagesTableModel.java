@@ -5,55 +5,55 @@ import javax.mail.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
-// This class manages the e-mail table's data.
+// 이메일 테이블의 데이터를 관리하는 클래스
 public class MessagesTableModel extends AbstractTableModel
 {
-  // These are the names for the table's columns.
+  // 테이블 열 이름
   private static final String[] columnNames = {"Sender",
     "Subject", "Date"};
 
-  // The table's list of messages.
+  // 메시지 리스트
   private ArrayList messageList = new ArrayList();
 
-  // Sets the table's list of messages.
+  // 테이블에 메시지들을 추가
   public void setMessages(Message[] messages) {
     for (int i = messages.length - 1; i >= 0; i--) {
       messageList.add(messages[i]);
     }
 
-    // Fire table data change notification to table.
+    // 테이블의 데이터에 변화가 있음을 알리는 이벤트 발생
     fireTableDataChanged();
   }
 
-  // Get a message for the specified row.
+  // 특정 행에 해당하는 메시지를 리턴
   public Message getMessage(int row) {
     return (Message) messageList.get(row);
   }
 
-  // Remove a message from the list.
+  // 메시지 리스트에서 해당 메시지를 삭제
   public void deleteMessage(int row) {
     messageList.remove(row);
 
-    // Fire table row deletion notification to table.
+    // 테이블의 특정 행이 삭제되었음을 알리는 이벤트 발생
     fireTableRowsDeleted(row, row);
   }
 
-  // Get table's column count.
+  // 테이블 열 개수를 리턴
   public int getColumnCount() {
     return columnNames.length;
   }
 
-  // Get a column's name.
+  // 테이블 열 이름을 리턴
   public String getColumnName(int col) {
      return columnNames[col];
   }
 
-  // Get table's row count.
+  // 테이블 행 개수를 리턴
   public int getRowCount() {
     return messageList.size();
   }
 
-  // Get value for a specific row and column combination.
+  // 테이블의 특정 셀에 해당하는 값을 리턴
   public Object getValueAt(int row, int col) {
     try {
       Message message = (Message) messageList.get(row);
@@ -81,7 +81,7 @@ public class MessagesTableModel extends AbstractTableModel
           }
       }
     } catch (Exception e) {
-      // Fail silently.
+      // 예외 발생
       return "";
     }
 
