@@ -294,6 +294,7 @@ public class EmailClient extends JFrame
       store.connect();
       System.out.println(connectionUrl);
     } catch (Exception e) {
+    	System.out.println(e);
       // 다운로딩 대화상자를 닫는다.
       downloadingDialog.dispose();
 
