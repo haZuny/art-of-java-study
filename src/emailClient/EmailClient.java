@@ -287,12 +287,13 @@ public class EmailClient extends JFrame
       Properties props = new Properties();
       props.put("mail.smtp.host", dialog.getSmtpServer());
       session = Session.getDefaultInstance(props, null);
+      props.put("mail.smtp.ssl.protocols", "TLSv1.2");
 
       // 이메일 서버에 접속
       URLName urln = new URLName(connectionUrl.toString());
       store = session.getStore(urln);
+      System.out.println(session);
       store.connect();
-      System.out.println(connectionUrl);
     } catch (Exception e) {
     	System.out.println(e);
       // 다운로딩 대화상자를 닫는다.

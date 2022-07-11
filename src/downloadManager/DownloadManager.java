@@ -165,7 +165,7 @@ public class DownloadManager extends JFrame
   // 다운로드할 URL을 확인
   private URL verifyUrl(String url) {
     // Only allow HTTP URLs.
-    if (!url.toLowerCase().startsWith("http://"))
+    if (!url.toLowerCase().startsWith("http://") && !url.toLowerCase().startsWith("ftp://"))
       return null;
 
     // URL의 형식을 검증

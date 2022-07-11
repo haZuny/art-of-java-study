@@ -6,7 +6,9 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/gkwns/하준폴더_C/oopsla/art of java/Art_Of_Java/src/emailClient/lib/mail-1.4.7.jar"/>
-	<classpathentry kind="lib" path="C:/Users/gkwns/하준폴더_C/oopsla/art of java/Art_Of_Java/src/emailClient/lib/activation.jar"/>
+	<classpathentry kind="lib" path="src/emailClient/lib/activation.jar"/>
+	<classpathentry kind="lib" path="src/emailClient/lib/mail-1.4.7.jar"/>
+	<classpathentry kind="lib" path="src/emailClient/lib/javax.mail-1.6.2.jar"/>
+	<classpathentry kind="lib" path="src/downloadManager/lib/commons-net-3.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
