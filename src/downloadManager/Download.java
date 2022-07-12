@@ -100,10 +100,11 @@ class Download extends Observable implements Runnable {
 
 		try {
 
-			// HTTP프로토콜
+			// HTTP 프로토콜
 			if (url.getProtocol().equals("http"))
 				// URL 연결 객체 생성
 				connection = (HttpURLConnection) url.openConnection();
+			// FTP 프로토콜
 			else if (url.getProtocol().equals("ftp"))
 				// URL 연결 객체 생성
 				connection = url.openConnection();

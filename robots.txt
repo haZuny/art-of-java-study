@@ -1,0 +1,3 @@
+User-Agent: *
+Disallow: /pub/
+Disallow: /geoul/usage/reports/webalizer/
