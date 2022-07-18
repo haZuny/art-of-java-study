@@ -9,6 +9,8 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.internet.*;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
 
 // 이메일 클라이언트
 public class EmailClient extends JFrame {
@@ -18,8 +20,8 @@ public class EmailClient extends JFrame {
 	// 메시지 목록을 가지는 테이블
 	private JTable table;
 
-	// 메시지 목록을 가지는 텍스트 영역
-	private JTextArea messageTextArea;
+	// 메시지 내용을 가지는 텍스트 영역
+	private static JEditorPane messageTextArea;
 
 	/* 메시지 테이블과 메시지 뷰 판넬을 가지는 스플릿 판넬 */
 	private JSplitPane splitPane;
@@ -89,7 +91,7 @@ public class EmailClient extends JFrame {
 		// 이메일 패널 설정
 		JPanel emailsPanel = new JPanel();
 		emailsPanel.setBorder(BorderFactory.createTitledBorder("E-mails"));
-		messageTextArea = new JTextArea();
+		messageTextArea = new JEditorPane ();
 		messageTextArea.setEditable(false);
 		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(table), new JScrollPane(messageTextArea));
 		emailsPanel.setLayout(new BorderLayout());
@@ -264,7 +266,6 @@ public class EmailClient extends JFrame {
 		connectionUrl.append(dialog.getServerType() + "://");
 		connectionUrl.append(dialog.getUsername() + ":");
 		connectionUrl.append(dialog.getPassword() + "@");
-		System.out.println(dialog.getServerType());
 		if(dialog.getServerType().equals("pop3"))		
 			connectionUrl.append("pop.");
 		else
@@ -293,11 +294,6 @@ public class EmailClient extends JFrame {
 			props.put("mail.pop3.port", 995); // pop3 포트 설정
 			props.put("mail.pop3.ssl.protocols", "TLSv1.2"); // 서버, 클라이언트간 SSL/TLS 버전을 맞춤 / pop3
 			props.put("mail.pop3.ssl.enable", "true");
-
-			props.put("mail.imap.host", dialog.getServer());
-			props.put("mail.imap.port", 995); // imap 포트 설정
-			props.put("mail.imap.ssl.protocols", "TLSv1.2"); // 서버, 클라이언트간 SSL/TLS 버전을 맞춤 / imap
-			props.put("mail.imap.ssl.enable", "true");
 
 			session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
 				protected PasswordAuthentication getPasswordAuthentication() {
@@ -364,12 +360,17 @@ public class EmailClient extends JFrame {
 			Multipart multipart = (Multipart) content;
 			for (int i = 0; i < multipart.getCount(); i++) {
 				Part part = (Part) multipart.getBodyPart(i);
-				if (part.isMimeType("text/plain")) {
+//				if (part.isMimeType("text/plain")) {
+//					messageContent.append(part.getContent().toString());
+//				}
+				if(part.isMimeType("text/html")) {
+					messageTextArea.setContentType("text/html");	//html타입 설정
 					messageContent.append(part.getContent().toString());
 				}
 			}
 			return messageContent.toString();
 		} else {
+			messageTextArea.setContentType("text/plain");	//html타입 설정
 			return content.toString();
 		}
 	}

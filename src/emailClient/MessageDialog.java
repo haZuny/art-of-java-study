@@ -29,7 +29,7 @@ public class MessageDialog extends JDialog
   {
     // 상위 클래스 생성자, 대화상자가 모달임을 명세
     super(parent, true);
-
+    
     /* 타이틀 설정 및 메시지 타입에 따른 수신자, 제목, 내용 값을 얻음 */
     String to = "", subject = "", content = "";
     switch (type) {
